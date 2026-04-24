@@ -27,7 +27,7 @@ class Jarra:
     def set_callback(self, callback: Callable) -> None:
         self.callback_actualizar = callback
 
-    def beber(self, cantidad: int, nombre: str) -> bool:
+    def bebe_r(self, cantidad: int, nombre: str) -> bool:
         self.semaforo.acquire()
 
         try:
