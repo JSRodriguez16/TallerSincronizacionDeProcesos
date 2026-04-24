@@ -120,10 +120,10 @@ class SimulacionGUI:
         frame_autor = ttk.Frame(self.root, padding="5")
         frame_autor.pack(fill=tk.X, padx=10, pady=(10, 5))
         ttk.Label(
-            frame_autor, 
-            text="Autor: Juan Sebastian Rodriguez Carreño", 
+            frame_autor,
+            text="Autor: Juan Sebastian Rodriguez Carreño",
             font=("Arial", 9, "italic"),
-            foreground="gray"
+            foreground="gray",
         ).pack(side=tk.LEFT)
 
         frame_control = ttk.Frame(self.root, padding="10")
@@ -346,7 +346,7 @@ class SimulacionGUI:
                 if agua_actual < capacidad * 0.25:
                     self.jarra.rellenar(capacidad // 2, "Sistema (Auto)")
 
-            time.sleep(0.5)
+            time.sleep(15)
 
     def _on_closing(self) -> None:
         self.corriendo = False
