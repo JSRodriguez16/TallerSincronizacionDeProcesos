@@ -27,6 +27,9 @@ class Jarra:
     def set_callback(self, callback: Callable) -> None:
         self.callback_actualizar = callback
 
+    def beber(self, cantidad: int, nombre: str) -> bool:
+        return self.bebe_r(cantidad, nombre)
+
     def bebe_r(self, cantidad: int, nombre: str) -> bool:
         self.semaforo.acquire()
 
@@ -93,7 +96,7 @@ class Persona(threading.Thread):
         while self.jarra.corriendo and intento < self.num_intentos:
             cantidad = random.randint(10, 50)
             time.sleep(random.uniform(0.3, 1.0))
-            self.jarra.beber(cantidad, self.nombre)
+            self.jarra.bebe_r(cantidad, self.nombre)
             time.sleep(1)
             intento += 1
 
@@ -116,7 +119,6 @@ class SimulacionGUI:
         self.root.protocol("WM_DELETE_WINDOW", self._on_closing)
 
     def _crear_interfaz(self) -> None:
-        # Frame de autor
         frame_autor = ttk.Frame(self.root, padding="5")
         frame_autor.pack(fill=tk.X, padx=10, pady=(10, 5))
         ttk.Label(
@@ -310,6 +312,12 @@ class SimulacionGUI:
         for persona in self.personas:
             persona.start()
 
+        self.detener_relleno = False
+        self.thread_relleno = threading.Thread(
+            target=self._relleno_automatico_thread, daemon=True
+        )
+        self.thread_relleno.start()
+
         self.label_info.config(
             text=f"Simulacion en ejecucion: {num_personas} personas, semaforo={max_bebedores}"
         )
@@ -321,6 +329,8 @@ class SimulacionGUI:
         if self.jarra:
             self.jarra.corriendo = False
         self.detener_relleno = True
+        if self.thread_relleno and self.thread_relleno.is_alive():
+            self.thread_relleno.join(timeout=1)
         self.btn_iniciar.config(state=tk.NORMAL)
         self.btn_detener.config(state=tk.DISABLED)
         self.btn_rellenar.config(state=tk.DISABLED)
@@ -344,7 +354,7 @@ class SimulacionGUI:
                 capacidad = self.jarra.capacidad_total
 
                 if agua_actual < capacidad * 0.25:
-                    self.jarra.rellenar(capacidad // 2, "Sistema (Auto)")
+                    self.jarra.rellenar(capacidad, "Sistema")
 
             time.sleep(15)
 
@@ -353,6 +363,9 @@ class SimulacionGUI:
         self.detener_relleno = True
         if self.jarra:
             self.jarra.corriendo = False
+
+        if self.thread_relleno and self.thread_relleno.is_alive():
+            self.thread_relleno.join(timeout=1)
 
         for persona in self.personas:
             persona.join(timeout=1)
